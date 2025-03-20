@@ -30,7 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+/bytecamp-database-153f24d9f366.json
 # env files (can opt-in for committing if needed)
+
 .env*
 
 # vercel
