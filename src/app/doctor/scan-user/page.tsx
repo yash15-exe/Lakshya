@@ -131,7 +131,7 @@ export default function QRScanner() {
 
       {hid && (
         <div className="mt-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-700">Scanned HID</h2>
+          <h2 className="text-lg font-semibold text-gray-700">Scanned HIDs</h2>
           <p className="mt-2 text-gray-700">{hid}</p>
         </div>
       )}
