@@ -3,10 +3,10 @@
 import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Button } from "@/components/ui/button"; // Import your button component
+import { Button } from "@/app/components/ui/button"; // Import your button component
 import { getMessaging, getToken } from "firebase/messaging";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "@/lib/firebaseConfig";
+import { firebaseConfig } from "@/app/lib/firebaseConfig";
 // Fix for default marker icons in Leaflet
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";

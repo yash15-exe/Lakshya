@@ -19,4 +19,4 @@ import { getMessaging } from "firebase/messaging";
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
-const messaging = getMessaging(app);
+

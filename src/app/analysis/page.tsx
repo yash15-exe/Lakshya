@@ -417,19 +417,45 @@ export default function RegistrationForm() {
         )}
         
         {formData.summary && (
-    <div className="mt-4 p-3 bg-white rounded-md border border-emerald-200">
-    <h4 className="font-medium text-emerald-800 mb-2">Document Summary</h4>
-    {typeof formData.summary === "string" ? (
-      <p className="text-sm text-gray-700">{formData.summary}hhh</p>
-    ) : (
-      <pre className="text-sm text-gray-700 bg-gray-100 p-2 rounded-md overflow-x-auto">
-        {JSON.stringify(formData.summary, null, 2)}
-      </pre>
-    )}
-  </div>
-  
-  )}
-  
+          <div className="mt-4 p-4 bg-white rounded-md border border-emerald-200 shadow-sm">
+            <h4 className="font-medium text-emerald-800 mb-3">Document Summary</h4>
+            
+            {typeof formData.summary === "string" ? (
+              <p className="text-sm text-gray-700">{formData.summary}</p>
+            ) : (
+              <div className="space-y-4">
+                {Object.entries(formData.summary).map(([key, value]) => (
+                  <div key={key} className="border-b border-emerald-100 pb-3">
+                    <div className="text-xs text-emerald-600 font-medium uppercase tracking-wide mb-2">
+                      {key.replace(/_/g, ' ')}
+                    </div>
+                    <div className="text-sm text-gray-800">
+                      {typeof value === 'object' 
+                        ? (
+                          <div className="grid grid-cols-1 gap-2 bg-emerald-50 p-3 rounded-md">
+                            {Object.entries(value).map(([subKey, subValue]) => (
+                              <div key={subKey} className="flex justify-between border-b border-emerald-100 pb-2 last:border-0 last:pb-0">
+                                <span className="text-sm font-medium text-emerald-700">
+                                  {subKey.replace(/_/g, ' ')}:
+                                </span>
+                                <span className="text-sm text-gray-700">{String(subValue)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) 
+                        : (
+                          <div className="bg-emerald-50 p-3 rounded-md">
+                            <span className="text-sm text-gray-700">{String(value)}</span>
+                          </div>
+                        )
+                      }
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -463,6 +489,8 @@ const uploadToFirebase = async (e) => {
     });
 
     console.log("Data successfully stored in Firebase");
+    sendNotification("User Registered Successfully","Thank You for registering with Arogya Virtual Health Card");
+
 
     alert("User registered successfully")
   } catch (error) {
