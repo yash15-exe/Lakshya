@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { db } from "@/app/lib/firebaseConfig";
 import { ref, get } from "firebase/database";
+import FileUpload from "@/app/components/my-components/uploadFiles";
 
 export default function ScanPage() {
   const { id: hid } = useParams<{ id: string }>();
@@ -45,6 +46,7 @@ export default function ScanPage() {
         <div className="mt-4 bg-white p-6 rounded-lg shadow-md w-full max-w-4xl">
           <h2 className="text-2xl font-semibold mb-6 text-blue-800 border-b pb-2 tracking-tight font-poppins">User Details</h2>
           <EnhancedDataDisplay data={data} />
+          <FileUpload hid={hid}/>
         </div>
       ) : (
         !loading && !error && <p className="mt-4 text-gray-700 font-medium">No data available.</p>
@@ -154,6 +156,7 @@ const EnhancedDataDisplay = ({ data }: { data: any }) => {
           </div>
         </div>
       ))}
+
     </div>
   );
 };
