@@ -6,6 +6,8 @@ import { Scan, Check } from "lucide-react";
 import { db } from "@/app/lib/firebaseConfig"; // Import Firebase configuration
 import { ref, get } from "firebase/database"; // Realtime Database functions
 import { v4 as uuid } from "uuid";
+
+
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [hid, setHid] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export default function QRScanner() {
 
   useEffect(() => {
     const otp = Math.floor(1000 + Math.random() * 9000);
-console.log(otp); // Example output: 4729
+console.log(otp); // Example output: 472
 
     setOtp(`${otp}`)
     if (scanning) {
@@ -99,6 +101,7 @@ console.log(otp); // Example output: 4729
     }
   };
 
+
   const fetchFcmToken = async (hid: string) => {
     try {
       const fcmTokenRef = ref(db, `user/${hid}/fcm`);
@@ -124,7 +127,7 @@ console.log(otp); // Example output: 4729
       setMessage("Failed to fetch FCM token. Please try again.");
     }
   };
-
+  
   const handleOtpSubmit = async () => {
     if (!otp) {
       setMessage("Please enter the OTP.");
