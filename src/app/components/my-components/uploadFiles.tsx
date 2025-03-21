@@ -15,15 +15,15 @@ export default function FileUpload({ hid }) {
     sugarLevel: "",
     weight: "",
     heartRate: "",
-    doctorname:"",
+    doctorname:"Dr.Prashant",
     fileUrl: "", // Added fileUrl to formData
   });
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event:any) => {
     setFile(event.target.files[0]);
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event:any) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,

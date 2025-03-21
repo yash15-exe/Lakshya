@@ -7,22 +7,23 @@ import { db } from "@/app/lib/firebaseConfig"; // Import Firebase configuration
 import { ref, get } from "firebase/database"; // Realtime Database functions
 import { v4 as uuid } from "uuid";
 
+
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
-  const [hid, setHid] = useState(null);
+  const [hid, setHid] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [fcmToken, setFcmToken] = useState(null);
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [otp, setOtp] = useState("");
   const [showOtpField, setShowOtpField] = useState(false);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const scanIntervalRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const otp = Math.floor(1000 + Math.random() * 9000);
-    console.log(otp); // Example output: 4729
+console.log(otp); // Example output: 472
 
     setOtp(`${otp}`)
     if (scanning) {
@@ -55,7 +56,7 @@ export default function QRScanner() {
 
   const stopCamera = () => {
     videoRef.current?.srcObject &&
-      (videoRef.current.srcObject)
+      (videoRef.current.srcObject as MediaStream)
         .getTracks()
         .forEach((track) => track.stop());
   };
@@ -100,7 +101,8 @@ export default function QRScanner() {
     }
   };
 
-  const fetchFcmToken = async (hid) => {
+
+  const fetchFcmToken = async (hid: string) => {
     try {
       const fcmTokenRef = ref(db, `user/${hid}/fcm`);
       const snapshot = await get(fcmTokenRef);
@@ -125,7 +127,7 @@ export default function QRScanner() {
       setMessage("Failed to fetch FCM token. Please try again.");
     }
   };
-
+  
   const handleOtpSubmit = async () => {
     if (!otp) {
       setMessage("Please enter the OTP.");
@@ -142,101 +144,97 @@ export default function QRScanner() {
     }
   };
 
-  const verifyOtp = async (otpVerify) => {
+  const verifyOtp = async (otpVerify: string) => {
     // Replace this with your actual OTP verification logic
     // For example, send the OTP to your backend API for verification
     return otpVerify === otp; // Dummy OTP verification
   };
 
   return (
-    <div className="bg-blue-400 min-h-screen w-full">
-      <div className="container mx-auto p-6 flex flex-col justify-center items-center min-h-screen">
-        <h1 className="text-white font-bold text-2xl mb-8">SCAN USER</h1>
+    <div className="container mx-auto p-6 bg-gradient-to-b from-purple-50 to-purple-200 shadow-lg rounded-lg max-w-2xl min-h-screen flex flex-col justify-center items-center">
+      <h1 className="text-purple-900 font-bold text-2xl mb-8">SCAN USER</h1>
 
-        <div className="w-full max-w-md aspect-square rounded-xl overflow-hidden relative mb-8 shadow-lg bg-blue-700 p-4">
-          {scanning ? (
-            <div className="w-full h-full rounded-lg overflow-hidden">
-              <video
-                ref={videoRef}
-                className="w-full h-full rounded-lg object-cover"
-              ></video>
-              <canvas ref={canvasRef} className="hidden"></canvas>
+      <div className="w-full max-w-md aspect-square rounded-xl overflow-hidden relative mb-8 shadow-md">
+        {scanning ? (
+          <>
+            <video
+              ref={videoRef}
+              className="w-full h-full rounded-lg object-cover"
+            ></video>
+            <canvas ref={canvasRef} className="hidden"></canvas>
 
-              {/* Scanning overlay with frame */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-64 h-64 border-2 border-white/80 rounded-lg flex items-center justify-center">
-                  <div className="w-56 h-56 border border-blue-300/70 rounded-md relative">
-                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-blue-300 rounded-tl-sm"></div>
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-300 rounded-tr-sm"></div>
-                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-blue-300 rounded-bl-sm"></div>
-                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-300 rounded-br-sm"></div>
-                  </div>
+            {/* Scanning overlay with frame */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-64 h-64 border-2 border-white/80 rounded-lg flex items-center justify-center">
+                <div className="w-56 h-56 border border-purple-500/70 rounded-md relative">
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500 rounded-tl-sm"></div>
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500 rounded-tr-sm"></div>
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500 rounded-bl-sm"></div>
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500 rounded-br-sm"></div>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-blue-800 rounded-lg">
-              <div className="bg-blue-700 p-4 rounded-full mb-4">
-                <Scan size={64} className="text-white" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">QR Scanner</h3>
-              <p className="text-blue-100 text-center mb-6">
-                Scan a patient's QR code to quickly access their medical information
-              </p>
-            </div>
-          )}
-        </div>
-
-        {!showOtpField ? (
-          <button
-            onClick={() => {
-              setScanning(!scanning);
-              setMessage("");
-              setHid(null);
-            }}
-            className="bg-blue-500 text-white py-3 px-8 rounded-md hover:bg-blue-800 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
-          >
-            <Scan size={18} className="mr-2" />
-            {scanning ? "Stop Scanning" : "Start Scanning"}
-          </button>
+          </>
         ) : (
-          <div className="w-full max-w-md bg-blue-500 p-6 rounded-lg shadow-lg">
-            <h3 className="text-white font-medium mb-4 text-center">Enter the OTP sent to patient</h3>
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full p-3 border border-blue-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
-            />
-            <button
-              onClick={handleOtpSubmit}
-              className="bg-blue-800 text-white py-3 px-6 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out w-full font-medium flex items-center justify-center shadow-md"
-            >
-              <Check size={18} className="mr-2" />
-              Verify OTP
-            </button>
-          </div>
-        )}
-
-        {message && (
-          <div
-            className={`text-center py-2 px-4 rounded-md mt-4 w-full max-w-md shadow-sm ${
-              message.includes("denied") || message.includes("Invalid")
-                ? "bg-red-500"
-                : "bg-emerald-500"
-            } text-white`}
-          >
-            {message}
-          </div>
-        )}
-
-        {hid && !showOtpField && (
-          <div className="mt-6 text-center p-4 bg-blue-500 border border-blue-500 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-semibold text-white">Scanned HID</h2>
-            <p className="mt-2 text-white font-mono bg-blue-300 p-2 rounded border border-blue-600">{hid}</p>
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-white rounded-xl">
+            <Scan size={64} className="text-purple-500 mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-purple-800">QR Scanner</h3>
+            <p className="text-purple-600 text-center mb-6">
+              Scan a patient's QR code to quickly access their medical information
+            </p>
           </div>
         )}
       </div>
+
+      {!showOtpField ? (
+        <button
+          onClick={() => {
+            setScanning(!scanning);
+            setMessage("");
+            setHid(null);
+          }}
+          className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
+        >
+          <Scan size={18} className="mr-2" />
+          {scanning ? "Stop Scanning" : "Start Scanning"}
+        </button>
+      ) : (
+        <div className="w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            
+            onChange={(e) => setOtp(e.target.value)}
+            className="w-full p-3 border border-purple-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <button
+            onClick={handleOtpSubmit}
+            className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out w-full font-medium flex items-center justify-center shadow-md"
+          >
+            <Check size={18} className="mr-2" />
+            Verify OTP
+          </button>
+        </div>
+      )}
+
+      {message && (
+        <div
+          className={`text-center py-2 px-4 rounded-md mt-4 w-full max-w-md shadow-sm ${
+            message.includes("denied") || message.includes("Invalid")
+              ? "bg-red-500"
+              : "bg-emerald-500"
+          } text-white`}
+        >
+          {message}
+        </div>
+      )}
+
+      {hid && !showOtpField && (
+        <div className="mt-6 text-center p-4 bg-white border border-purple-200 rounded-lg w-full max-w-md shadow-sm">
+          <h2 className="text-lg font-semibold text-purple-700">Scanned HID</h2>
+          <p className="mt-2 text-purple-800 font-mono bg-purple-50 p-2 rounded border border-purple-100">{hid}</p>
+        </div>
+      )}
     </div>
   );
 }

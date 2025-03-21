@@ -15,17 +15,17 @@ const AQIMap = dynamic(() => import("@/app/components/my-components/aqiMap"), {
 });
 
 export default function Home() {
-  const [userReports, setUserReports] = useState([]);
+  const [userReports, setUserReports] = useState([] as any);
   const [activeTab, setActiveTab] = useState("maps");
   const [minCases, setMinCases] = useState(0);
   const [maxRadius, setMaxRadius] = useState(Infinity);
   const [selectedDisease, setSelectedDisease] = useState("All");
   const router = useRouter();
 
-  const groupOutbreaksByDisease = (outbreaks) => {
+  const groupOutbreaksByDisease = (outbreaks:any) => {
     const groupedOutbreaks = new Map();
 
-    outbreaks.forEach((outbreak) => {
+    outbreaks.forEach((outbreak:any) => {
       if (!groupedOutbreaks.has(outbreak.name)) {
         groupedOutbreaks.set(outbreak.name, []);
       }
@@ -39,7 +39,7 @@ export default function Home() {
   const groupedOutbreaks = groupOutbreaksByDisease(outbreaks);
   const uniqueDiseases = Array.from(groupedOutbreaks.keys());
 
-  const handleDiseaseChange = (e) => {
+  const handleDiseaseChange = (e:any) => {
     setSelectedDisease(e.target.value);
   };
 
