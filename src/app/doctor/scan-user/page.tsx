@@ -1,8 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import jsQR from "jsqr";
-import { db } from "@/app/lib/firebaseConfig";
 import { useRouter } from "next/navigation";
+import { Scan } from "lucide-react";
 
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
@@ -13,6 +13,7 @@ export default function QRScanner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+  
   useEffect(() => {
     if (scanning) {
       startCamera();
@@ -90,23 +91,44 @@ export default function QRScanner() {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg max-w-2xl h-screen flex flex-col justify-center items-center">
-      <h1 className="text-black font-bold text-2xl">SCAN USER</h1>
+    <div className="container mx-auto p-6 bg-gradient-to-b from-purple-50 to-purple-200 shadow-lg rounded-lg max-w-2xl min-h-screen flex flex-col justify-center items-center">
+      <h1 className="text-purple-900 font-bold text-2xl mb-8">SCAN USER</h1>
 
-      {scanning && (
-        <div className="relative mb-4">
-          <video
-            ref={videoRef}
-            className="w-full h-72 rounded-lg border-2 border-gray-300"
-            style={{ objectFit: "cover" }}
-          ></video>
-          <canvas ref={canvasRef} className="hidden"></canvas>
-        </div>
-      )}
-
-      <h1 className="text-xl font-semibold text-center text-gray-800 mb-6">
-        Scan QR Code
-      </h1>
+      <div className="w-full max-w-md aspect-square rounded-xl overflow-hidden relative mb-8 shadow-md">
+        {scanning ? (
+          <>
+            <video
+              ref={videoRef}
+              className="w-full h-full rounded-lg object-cover"
+            ></video>
+            <canvas ref={canvasRef} className="hidden"></canvas>
+            
+            {/* Scanning overlay with frame */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-64 h-64 border-2 border-white/80 rounded-lg flex items-center justify-center">
+                <div className="w-56 h-56 border border-purple-500/70 rounded-md relative">
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500 rounded-tl-sm"></div>
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500 rounded-tr-sm"></div>
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500 rounded-bl-sm"></div>
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500 rounded-br-sm"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm bg-black/50 py-1">
+              Position QR code within the frame
+            </div> */}
+          </>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-white rounded-xl">
+            <Scan size={64} className="text-purple-500 mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-purple-800">QR Scanner</h3>
+            <p className="text-purple-600 text-center mb-6">
+              Scan a patient's QR code to quickly access their medical information
+            </p>
+          </div>
+        )}
+      </div>
 
       <button
         onClick={() => {
@@ -114,15 +136,16 @@ export default function QRScanner() {
           setMessage("");
           setHid(null);
         }}
-        className="bg-gray-950 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition duration-300 ease-in-out mb-4"
+        className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
       >
+        <Scan size={18} className="mr-2" />
         {scanning ? "Stop Scanning" : "Start Scanning"}
       </button>
 
       {message && (
         <div
-          className={`text-center py-2 px-4 rounded-md mt-4 ${
-            message.includes("Error") ? "bg-red-500" : "bg-green-500"
+          className={`text-center py-2 px-4 rounded-md mt-4 w-full max-w-md shadow-sm ${
+            message.includes("denied") ? "bg-red-500" : "bg-emerald-500"
           } text-white`}
         >
           {message}
@@ -130,9 +153,9 @@ export default function QRScanner() {
       )}
 
       {hid && (
-        <div className="mt-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-700">Scanned HIDs</h2>
-          <p className="mt-2 text-gray-700">{hid}</p>
+        <div className="mt-6 text-center p-4 bg-white border border-purple-200 rounded-lg w-full max-w-md shadow-sm">
+          <h2 className="text-lg font-semibold text-purple-700">Scanned HID</h2>
+          <p className="mt-2 text-purple-800 font-mono bg-purple-50 p-2 rounded border border-purple-100">{hid}</p>
         </div>
       )}
     </div>
