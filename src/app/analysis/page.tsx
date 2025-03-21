@@ -9,6 +9,12 @@ import QRCode from "qrcode";
 import { db } from "../lib/firebaseConfig";
 import { ref, set } from "firebase/database";
 import { sendNotification } from "../components/my-components/sendNotifications";
+import Link from "next/link";
+import Newnavbar from "../components/ui/Newnavbar";
+// Import React Toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // Custom Button component
 const Button = ({ 
   children, 
@@ -51,7 +57,7 @@ const Input = ({
       whileTap={{ scale: 1.01 }}
       whileHover={{ scale: 1.01 }}
       className={cn(
-        "flex h-10 w-full rounded-md border border-input bg-blue-50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-10 w-full rounded-md border border-input bg-green-50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
@@ -156,7 +162,7 @@ const Select = ({
     <div className="relative">
       <select
         className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-blue-50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full rounded-md border border-input bg-green-50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         {...props}
@@ -243,26 +249,26 @@ const DatePicker = ({
   return (
     <div className="relative">
       <div 
-        className="flex h-10 w-full rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm items-center cursor-pointer"
+        className="flex h-10 w-full rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className={value ? "text-gray-900" : "text-gray-400"}>
           {value ? format(value, "PPP") : "Select date"}
         </span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-auto text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
       
       {isOpen && (
-        <div className="absolute z-10 mt-1 bg-white rounded-md shadow-lg p-2 border border-blue-100 w-64">
+        <div className="absolute z-10 mt-1 bg-white rounded-md shadow-lg p-2 border border-green-100 w-64">
           <div className="p-2">
             {/* Month and Year Selection */}
             <div className="flex justify-between items-center mb-2">
               <select 
                 value={viewDate.getMonth()} 
                 onChange={(e) => setViewDate(new Date(viewDate.getFullYear(), parseInt(e.target.value), 1))}
-                className="text-sm border border-blue-200 rounded-md p-1"
+                className="text-sm border border-green-200 rounded-md p-1"
               >
                 {months.map((month, index) => (
                   <option key={month} value={index}>{month}</option>
@@ -272,7 +278,7 @@ const DatePicker = ({
               <select 
                 value={viewDate.getFullYear()} 
                 onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))}
-                className="text-sm border border-blue-200 rounded-md p-1"
+                className="text-sm border border-green-200 rounded-md p-1"
               >
                 {years.map((year) => (
                   <option key={year} value={year}>{year}</option>
@@ -283,7 +289,7 @@ const DatePicker = ({
             {/* Days of Week Header */}
             <div className="grid grid-cols-7 gap-1">
               {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                <div key={day} className="text-center text-xs font-medium text-blue-600 py-1">
+                <div key={day} className="text-center text-xs font-medium text-green-600 py-1">
                   {day}
                 </div>
               ))}
@@ -300,12 +306,12 @@ const DatePicker = ({
                       onChange(new Date(currentDate));
                       setIsOpen(false);
                     }}
-                    className={`text-center py-1 text-sm rounded-md cursor-pointer hover:bg-blue-50 ${
+                    className={`text-center py-1 text-sm rounded-md cursor-pointer hover:bg-green-50 ${
                       value && 
                       value.getDate() === day && 
                       value.getMonth() === viewDate.getMonth() && 
                       value.getFullYear() === viewDate.getFullYear() 
-                        ? "bg-blue-100 text-blue-700" 
+                        ? "bg-green-100 text-green-700" 
                         : ""
                     }`}
                   >
@@ -327,7 +333,8 @@ const DatePicker = ({
 
 
 export default function RegistrationForm() {
-
+  const [activeTab, setActiveTab] = useState(""); // Add state for activeTab
+  
   const [formData, setFormData] = useState({
     firstName: "Harshal",
     middleName: "Umakant",
@@ -378,22 +385,22 @@ export default function RegistrationForm() {
     };
     
     return (
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-        <h3 className="text-lg font-medium text-blue-800 mb-3">Upload Medical Documents</h3>
+      <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-100">
+        <h3 className="text-lg font-medium text-green-800 mb-3">Upload Medical Documents</h3>
         
         <div className="flex flex-col sm:flex-row gap-3">
-          <label className="flex-1 flex flex-col items-center px-4 py-6 bg-white text-blue-500 rounded-lg border border-dashed border-blue-300 cursor-pointer hover:bg-blue-50">
+          <label className="flex-1 flex flex-col items-center px-4 py-6 bg-white text-green-500 rounded-lg border border-dashed border-green-300 cursor-pointer hover:bg-green-50">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="mt-2 text-sm text-blue-600">Select PDF file</span>
+            <span className="mt-2 text-sm text-green-600">Select PDF file</span>
             <input type="file" className="hidden" accept=".pdf" onChange={handleFileChange} />
           </label>
           
           <Button
             onClick={handleUpload}
             disabled={!file || isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
           >
             {isLoading ? (
               <span className="flex items-center">
@@ -416,25 +423,25 @@ export default function RegistrationForm() {
         )}
         
         {formData.summary && (
-          <div className="mt-4 p-5 bg-white rounded-md border border-blue-200 shadow-sm max-w-full">
-            <h4 className="font-medium text-blue-800 mb-4 text-lg">Document Summary</h4>
+          <div className="mt-4 p-5 bg-white rounded-md border border-green-200 shadow-sm max-w-full">
+            <h4 className="font-medium text-green-800 mb-4 text-lg">Document Summary</h4>
             
             {typeof formData.summary === "string" ? (
               <p className="text-sm text-gray-700">{formData.summary}</p>
             ) : (
               <div className="space-y-5">
                 {Object.entries(formData.summary).map(([key, value]) => (
-                  <div key={key} className="border-b border-blue-100 pb-4 last:border-b-0">
-                    <div className="text-sm text-blue-600 font-medium uppercase tracking-wide mb-3">
+                  <div key={key} className="border-b border-green-100 pb-4 last:border-b-0">
+                    <div className="text-sm text-green-600 font-medium uppercase tracking-wide mb-3">
                       {key.replace(/_/g, ' ')}
                     </div>
                     <div className="text-sm text-gray-800">
                       {typeof value === 'object' 
                         ? (
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-blue-50 p-4 rounded-md">
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-green-50 p-4 rounded-md">
                             {Object.entries(value).map(([subKey, subValue]) => (
                               <div key={subKey} className="contents">
-                                <span className="text-sm font-medium text-blue-700">
+                                <span className="text-sm font-medium text-green-700">
                                   {subKey.replace(/_/g, ' ')}:
                                 </span>
                                 <span className="text-sm text-gray-700">{String(subValue)}</span>
@@ -443,7 +450,7 @@ export default function RegistrationForm() {
                           </div>
                         ) 
                         : (
-                          <div className="bg-blue-50 p-4 rounded-md">
+                          <div className="bg-green-50 p-4 rounded-md">
                             <span className="text-sm text-gray-700">{String(value)}</span>
                           </div>
                         )
@@ -490,78 +497,98 @@ const uploadToFirebase = async (e) => {
     console.log("Data successfully stored in Firebase");
     sendNotification("User Registered Successfully","Thank You for registering with Arogya Virtual Health Card");
 
+    // Show toast notification
+    toast.success("Registration completed", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
 
-    alert("User registered successfully")
+    // alert("User registered successfully") - Replaced with toast
   } catch (error) {
     console.error("Error generating QR code or storing data:", error);
+    // Show error toast
+    toast.error("Registration failed. Please try again.");
   }
 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-200 to-purple-100 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="max-w-2xl mx-auto backdrop-blur-sm bg-white/90 border-none shadow-xl">
-        <CardHeader className="pb-4">
-          <div className="w-full flex justify-center mb-2">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          </div>
-          <CardTitle className="text-xl sm:text-2xl font-bold text-center text-blue-800">
-            Registration Form
-          </CardTitle>
-          <p className="text-center text-blue-600 mt-1 text-sm sm:text-base">Please fill in your details below</p>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-6" onSubmit={uploadToFirebase}>
-            {/* Full Name Section */}
-            <div className="space-y-4 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-100">
-              <h3 className="text-base sm:text-lg font-medium text-blue-800 flex items-center">
-                <span className="h-5 sm:h-6 w-5 sm:w-6 rounded-full bg-blue-100 text-blue-600 mr-2 flex items-center justify-center text-xs sm:text-sm">1</span>
-                Personal Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="firstName" className="text-blue-700 text-sm">First Name</Label>
-                  <Input id="firstName" placeholder="Enter first name" className="border-blue-200 focus:border-blue-500" value={formData.firstName} onChange={handleChange} />
-                </div>
-                <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="middleName" className="text-blue-700 text-sm">Middle Name</Label>
-                  <Input id="middleName" placeholder="Enter middle name" className="border-blue-200 focus:border-blue-500" value={formData.middleName} onChange={handleChange} />
-                </div>
-                <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="lastName" className="text-blue-700 text-sm">Last Name</Label>
-                  <Input id="lastName" placeholder="Enter last name" className="border-blue-200 focus:border-blue-500" value={formData.lastName} onChange={handleChange} />
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-100 via-green-200 to-green-100">
+      {/* Position the navbar at the top with proper styling */}
+      <div className="sticky top-0 z-50 w-full">
+        <Newnavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+      
+      {/* Add ToastContainer component */}
+      <ToastContainer />
+      
+      <div className="py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <Card className="max-w-2xl mx-auto backdrop-blur-sm bg-white/90 border-none shadow-xl">
+          <CardHeader className="pb-4">
+            <div className="w-full flex justify-center mb-2">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </div>
             </div>
+            <CardTitle className="text-xl sm:text-2xl font-bold text-center text-green-800">
+              Registration Form
+            </CardTitle>
+            <p className="text-center text-green-600 mt-1 text-sm sm:text-base">Please fill in your details below</p>
+          </CardHeader>
+          <CardContent>
+            <form className="space-y-6" onSubmit={uploadToFirebase}>
+              {/* Full Name Section */}
+              <div className="space-y-4 bg-green-50 p-3 sm:p-4 rounded-lg border border-green-100">
+                <h3 className="text-base sm:text-lg font-medium text-green-800 flex items-center">
+                  <span className="h-5 sm:h-6 w-5 sm:w-6 rounded-full bg-green-100 text-green-600 mr-2 flex items-center justify-center text-xs sm:text-sm">1</span>
+                  Personal Information
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-1 sm:space-y-2">
+                    <Label htmlFor="firstName" className="text-green-700 text-sm">First Name</Label>
+                    <Input id="firstName" placeholder="Enter first name" className="border-green-200 focus:border-green-500" value={formData.firstName} onChange={handleChange} />
+                  </div>
+                  <div className="space-y-1 sm:space-y-2">
+                    <Label htmlFor="middleName" className="text-green-700 text-sm">Middle Name</Label>
+                    <Input id="middleName" placeholder="Enter middle name" className="border-green-200 focus:border-green-500" value={formData.middleName} onChange={handleChange} />
+                  </div>
+                  <div className="space-y-1 sm:space-y-2">
+                    <Label htmlFor="lastName" className="text-green-700 text-sm">Last Name</Label>
+                    <Input id="lastName" placeholder="Enter last name" className="border-green-200 focus:border-green-500" value={formData.lastName} onChange={handleChange} />
+                  </div>
+                </div>
+              </div>
 
-            {/* Blood Group & Date of Birth */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="bloodGroup" className="text-blue-700 text-sm">Blood Group</Label>
-                <Select id="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="border-blue-200 focus:border-blue-500">
-                  <option value="" disabled>Select blood group</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                </Select>
+              {/* Blood Group & Date of Birth */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1 sm:space-y-2">
+                  <Label htmlFor="bloodGroup" className="text-green-700 text-sm">Blood Group</Label>
+                  <Select id="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="border-green-200 focus:border-green-500">
+                    <option value="" disabled>Select blood group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </Select>
+                </div>
+                <div className="space-y-1 sm:space-y-2">
+                  <Label htmlFor="dob" className="text-green-700 text-sm">Date of Birth</Label>
+                  <DatePicker value={formData.dateOfBirth} onChange={handleDateChange} />
+                </div>
               </div>
-              <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="dob" className="text-blue-700 text-sm">Date of Birth</Label>
-                <DatePicker value={formData.dateOfBirth} onChange={handleDateChange} />
-              </div>
-            </div>
 
-            {/* Gender Selection */}
-            <div className="space-y-2">
-  <Label className="text-blue-700 text-sm">Gender</Label>
+              {/* Gender Selection */}
+              <div className="space-y-2">
+  <Label className="text-green-700 text-sm">Gender</Label>
   <RadioGroup className="space-x-4">
     <RadioItem 
       id="male" 
@@ -588,20 +615,21 @@ const uploadToFirebase = async (e) => {
 </div>
 
 
-            {/* PDF Uploader */}
-            <PdfUploader />
+              {/* PDF Uploader */}
+              <PdfUploader />
 
-            {/* Submit Button */}
-            <div className="pt-4">
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-2 sm:py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base">
-                Complete Registration
-              </Button>
-            </div>
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button type="submit" className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 sm:py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base">
+                  Complete Registration
+                </Button>
+              </div>
 
-            <p className="text-center text-blue-600 text-xs sm:text-sm mt-4">By registering, you agree to our Terms of Service and Privacy Policy</p>
-          </form>
-        </CardContent>
-      </Card>
+              <p className="text-center text-green-600 text-xs sm:text-sm mt-4">By registering, you agree to our Terms of Service and Privacy Policy</p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

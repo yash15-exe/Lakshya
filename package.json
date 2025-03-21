@@ -30,6 +30,7 @@
     "react-leaflet": "^5.0.0",
     "react-qr-barcode-scanner": "^2.0.0",
     "react-qr-reader": "^3.0.0-beta-1",
+    "react-toastify": "^11.0.5",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.4",
