@@ -7,7 +7,7 @@ import { outbreaks, aqiData } from "@/constants";
 import OutbreakMap from "@/app/components/my-components/outbreakMap";
 import { sendNotification } from "@/app/components/my-components/sendNotifications";
 import { fetchFCMTokens } from "@/app/components/my-components/fetchFCM";
-// Dynamically import AQIMap with SSR disabled
+
 const AQIMap = dynamic(() => import("@/app/components/my-components/aqiMap"), {
   ssr: false,
 });
@@ -15,6 +15,34 @@ const AQIMap = dynamic(() => import("@/app/components/my-components/aqiMap"), {
 export default function Home() {
   const [userReports, setUserReports] = useState([]);
   const [activeTab, setActiveTab] = useState("maps");
+  const [minCases, setMinCases] = useState(0);
+  const [maxRadius, setMaxRadius] = useState(Infinity);
+  const [selectedDisease, setSelectedDisease] = useState("All");
+
+  const groupOutbreaksByDisease = (outbreaks) => {
+    const groupedOutbreaks = new Map();
+
+    outbreaks.forEach((outbreak) => {
+      if (!groupedOutbreaks.has(outbreak.name)) {
+        groupedOutbreaks.set(outbreak.name, []);
+      }
+      groupedOutbreaks.get(outbreak.name).push(outbreak);
+    });
+    console.log(groupedOutbreaks);
+
+    return groupedOutbreaks;
+  };
+
+  const groupedOutbreaks = groupOutbreaksByDisease(outbreaks);
+  const uniqueDiseases = Array.from(groupedOutbreaks.keys());
+
+  const handleDiseaseChange = (e) => {
+    setSelectedDisease(e.target.value);
+  };
+
+  const filteredOutbreaks = selectedDisease === "All" 
+    ? outbreaks 
+    : groupedOutbreaks.get(selectedDisease) || [];
 
   useEffect(() => {
     const fetchUserReports = async () => {
@@ -40,7 +68,6 @@ export default function Home() {
     fetchUserReports();
   }, []);
 
-  // Function to update the status of a report
   const updateReportStatus = async ({
     reportId,
     newStatus,
@@ -52,7 +79,6 @@ export default function Home() {
       const reportRef = ref(db, `reports/${reportId}`);
       await update(reportRef, { status: newStatus });
 
-      // Update the local state to reflect the change
       setUserReports((prevReports: any) =>
         prevReports.map((report: any) =>
           report.id === reportId ? { ...report, status: newStatus } : report
@@ -122,6 +148,54 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="flex space-x-4 mb-6">
+          <div>
+            <label htmlFor="minCases" className="block text-sm font-medium text-gray-700">
+              Minimum Cases
+            </label>
+            <input
+              type="number"
+              id="minCases"
+              value={minCases}
+              onChange={(e) => setMinCases(Number(e.target.value))}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="maxRadius" className="block text-sm font-medium text-gray-700">
+              Maximum Radius (meters)
+            </label>
+            <input
+              type="number"
+              id="maxRadius"
+              value={maxRadius}
+              onChange={(e) => setMaxRadius(Number(e.target.value))}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="clusterName" className="block text-sm font-medium text-gray-700">
+              Filter by Disease
+            </label>
+            <select
+              id="clusterName"
+              value={selectedDisease}
+              onChange={handleDiseaseChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="All">All Diseases</option>
+              {uniqueDiseases.map((disease) => (
+                <option key={disease} value={disease}>
+                  {disease}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Maps Section */}
         {activeTab === "maps" && (
@@ -138,7 +212,7 @@ export default function Home() {
                     </h3>
                   </div>
                   <div className="p-4">
-                    <OutbreakMap outbreaks={outbreaks} />
+                    <OutbreakMap outbreaks={filteredOutbreaks} />
                   </div>
                 </div>
                 <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
