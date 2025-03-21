@@ -12,7 +12,7 @@ if (!admin.apps.length) {
 export async function POST(req) {
   try {
     const { tokens, title, body } = await req.json(); // Receive notification data
-
+    console.log(tokens)
     if (!tokens || tokens.length === 0) {
       return NextResponse.json({ success: false, error: "No tokens provided" });
     }
@@ -36,6 +36,7 @@ export async function POST(req) {
     }
   }
       };
+      console.log(message)
       
     // Instead of sendMulticast(), use sendEachForMulticast()
     const response = await admin.messaging().sendEachForMulticast({

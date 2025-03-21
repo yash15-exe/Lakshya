@@ -1,4 +1,4 @@
-export async function GET(req) {
+export async function GET(req:any) {
     const { searchParams } = new URL(req.url);
     const barcode = searchParams.get("barcode");
   

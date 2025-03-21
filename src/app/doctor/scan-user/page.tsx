@@ -2,19 +2,28 @@
 import { useState, useRef, useEffect } from "react";
 import jsQR from "jsqr";
 import { useRouter } from "next/navigation";
-import { Scan } from "lucide-react";
-
+import { Scan, Check } from "lucide-react";
+import { db } from "@/app/lib/firebaseConfig"; // Import Firebase configuration
+import { ref, get } from "firebase/database"; // Realtime Database functions
+import { v4 as uuid } from "uuid";
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [hid, setHid] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
+  const [otp, setOtp] = useState("");
+  const [showOtpField, setShowOtpField] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
-  
+
   useEffect(() => {
+    const otp = Math.floor(1000 + Math.random() * 9000);
+console.log(otp); // Example output: 4729
+
+    setOtp(`${otp}`)
     if (scanning) {
       startCamera();
       startScanningLoop();
@@ -82,12 +91,60 @@ export default function QRScanner() {
       if (scannedData) {
         setHid(scannedData);
         setMessage("QR Code Scanned Successfully!");
-        router.push(`/doctor/user/${scannedData}`);
         setScanning(false); // Stop scanning after successful detection
+        fetchFcmToken(scannedData); // Fetch FCM token for the scanned HID
       } else {
         setMessage("Invalid QR Code. Please scan again.");
       }
     }
+  };
+
+  const fetchFcmToken = async (hid: string) => {
+    try {
+      const fcmTokenRef = ref(db, `user/${hid}/fcm`);
+      const snapshot = await get(fcmTokenRef);
+      if (snapshot.exists()) {
+        setFcmToken(snapshot.val());
+        await fetch('/api/sendNotification',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tokens: [snapshot.val()],
+            title: 'HealthBot',
+            body: `Your OTP is ${otp}`,
+           }),
+        })
+        setShowOtpField(true); // Show OTP field after fetching FCM token
+      } else {
+        setMessage("No FCM token found for this HID.");
+      }
+    } catch (error) {
+      console.error("Error fetching FCM token:", error);
+      setMessage("Failed to fetch FCM token. Please try again.");
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!otp) {
+      setMessage("Please enter the OTP.");
+      return;
+    }
+
+    // Simulate OTP verification (replace with actual API call)
+    const isValidOtp = await verifyOtp(otp); // Replace with your OTP verification logic
+    if (isValidOtp) {
+      setMessage("OTP verified successfully!");
+      router.push(`/doctor/user/${hid}`); // Navigate to the desired route
+    } else {
+      setMessage("Invalid OTP. Please try again.");
+    }
+  };
+
+  const verifyOtp = async (otpVerify: string) => {
+    // Replace this with your actual OTP verification logic
+    // For example, send the OTP to your backend API for verification
+    return otpVerify === otp; // Dummy OTP verification
   };
 
   return (
@@ -102,7 +159,7 @@ export default function QRScanner() {
               className="w-full h-full rounded-lg object-cover"
             ></video>
             <canvas ref={canvasRef} className="hidden"></canvas>
-            
+
             {/* Scanning overlay with frame */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-64 h-64 border-2 border-white/80 rounded-lg flex items-center justify-center">
@@ -114,10 +171,6 @@ export default function QRScanner() {
                 </div>
               </div>
             </div>
-            
-            {/* <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm bg-black/50 py-1">
-              Position QR code within the frame
-            </div> */}
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-white rounded-xl">
@@ -130,29 +183,50 @@ export default function QRScanner() {
         )}
       </div>
 
-      <button
-        onClick={() => {
-          setScanning(!scanning);
-          setMessage("");
-          setHid(null);
-        }}
-        className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
-      >
-        <Scan size={18} className="mr-2" />
-        {scanning ? "Stop Scanning" : "Start Scanning"}
-      </button>
+      {!showOtpField ? (
+        <button
+          onClick={() => {
+            setScanning(!scanning);
+            setMessage("");
+            setHid(null);
+          }}
+          className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
+        >
+          <Scan size={18} className="mr-2" />
+          {scanning ? "Stop Scanning" : "Start Scanning"}
+        </button>
+      ) : (
+        <div className="w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            
+            onChange={(e) => setOtp(e.target.value)}
+            className="w-full p-3 border border-purple-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <button
+            onClick={handleOtpSubmit}
+            className="bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition duration-300 ease-in-out w-full font-medium flex items-center justify-center shadow-md"
+          >
+            <Check size={18} className="mr-2" />
+            Verify OTP
+          </button>
+        </div>
+      )}
 
       {message && (
         <div
           className={`text-center py-2 px-4 rounded-md mt-4 w-full max-w-md shadow-sm ${
-            message.includes("denied") ? "bg-red-500" : "bg-emerald-500"
+            message.includes("denied") || message.includes("Invalid")
+              ? "bg-red-500"
+              : "bg-emerald-500"
           } text-white`}
         >
           {message}
         </div>
       )}
 
-      {hid && (
+      {hid && !showOtpField && (
         <div className="mt-6 text-center p-4 bg-white border border-purple-200 rounded-lg w-full max-w-md shadow-sm">
           <h2 className="text-lg font-semibold text-purple-700">Scanned HID</h2>
           <p className="mt-2 text-purple-800 font-mono bg-purple-50 p-2 rounded border border-purple-100">{hid}</p>
