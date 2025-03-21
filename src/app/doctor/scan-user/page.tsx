@@ -2,19 +2,29 @@
 import { useState, useRef, useEffect } from "react";
 import jsQR from "jsqr";
 import { useRouter } from "next/navigation";
-import { Scan, User, AlertCircle } from "lucide-react";
+import { Scan, Check } from "lucide-react";
+import { db } from "@/app/lib/firebaseConfig"; // Import Firebase configuration
+import { ref, get } from "firebase/database"; // Realtime Database functions
+import { v4 as uuid } from "uuid";
 
-export default function DoctorQRScanner() {
+export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [hid, setHid] = useState(null);
   const [message, setMessage] = useState("");
+  const [fcmToken, setFcmToken] = useState(null);
+  const [otp, setOtp] = useState("");
+  const [showOtpField, setShowOtpField] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const scanIntervalRef = useRef(null);
   const router = useRouter();
-  
+
   useEffect(() => {
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    console.log(otp); // Example output: 4729
+
+    setOtp(`${otp}`)
     if (scanning) {
       startCamera();
       startScanningLoop();
@@ -81,119 +91,151 @@ export default function DoctorQRScanner() {
 
       if (scannedData) {
         setHid(scannedData);
-        setMessage("Patient ID scanned successfully!");
-        router.push(`/doctor/user/${scannedData}`);
+        setMessage("QR Code Scanned Successfully!");
         setScanning(false); // Stop scanning after successful detection
+        fetchFcmToken(scannedData); // Fetch FCM token for the scanned HID
       } else {
         setMessage("Invalid QR Code. Please scan again.");
       }
     }
   };
 
-  return (
-    <div className="min-h-screen bg-blue-700 flex flex-col items-center justify-center p-4">
-      {/* Top header bar */}
-      <div className="w-full max-w-xl bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <User className="text-white mr-2" size={20} />
-          <h1 className="text-white font-bold text-lg">Dr. Portal</h1>
-        </div>
-        <div className="bg-blue-500 px-3 py-1 rounded-full text-xs text-white font-medium">
-          Scanner
-        </div>
-      </div>
-      
-      {/* Main content container */}
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-blue-800 p-4 text-center">
-          <h2 className="text-white font-bold text-xl">Patient QR Scanner</h2>
-          <p className="text-blue-100 text-sm">Scan patient ID to access medical records</p>
-        </div>
+  const fetchFcmToken = async (hid) => {
+    try {
+      const fcmTokenRef = ref(db, `user/${hid}/fcm`);
+      const snapshot = await get(fcmTokenRef);
+      if (snapshot.exists()) {
+        setFcmToken(snapshot.val());
+        await fetch('/api/sendNotification',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tokens: [snapshot.val()],
+            title: 'HealthBot',
+            body: `Your OTP is ${otp}`,
+           }),
+        })
+        setShowOtpField(true); // Show OTP field after fetching FCM token
+      } else {
+        setMessage("No FCM token found for this HID.");
+      }
+    } catch (error) {
+      console.error("Error fetching FCM token:", error);
+      setMessage("Failed to fetch FCM token. Please try again.");
+    }
+  };
 
-        {/* Scanner area */}
-        <div className="p-6">
-          <div className="aspect-square rounded-xl overflow-hidden relative mb-6 border-4 border-blue-200 shadow-lg">
-            {scanning ? (
-              <>
-                <video
-                  ref={videoRef}
-                  className="w-full h-full rounded-lg object-cover"
-                ></video>
-                <canvas ref={canvasRef} className="hidden"></canvas>
-                
-                {/* Scanning overlay with frame */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-3/4 h-3/4 border-2 border-white/80 rounded-lg flex items-center justify-center">
-                    <div className="w-5/6 h-5/6 border border-blue-500/70 rounded-md relative animate-pulse">
-                      {/* Corner elements */}
-                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-blue-500 rounded-tl-sm"></div>
-                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-blue-500 rounded-tr-sm"></div>
-                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-blue-500 rounded-bl-sm"></div>
-                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-blue-500 rounded-br-sm"></div>
-                      
-                      {/* Scan line animation */}
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-blue-400/60 animate-[scan_2s_ease-in-out_infinite]"></div>
-                    </div>
+  const handleOtpSubmit = async () => {
+    if (!otp) {
+      setMessage("Please enter the OTP.");
+      return;
+    }
+
+    // Simulate OTP verification (replace with actual API call)
+    const isValidOtp = await verifyOtp(otp); // Replace with your OTP verification logic
+    if (isValidOtp) {
+      setMessage("OTP verified successfully!");
+      router.push(`/doctor/user/${hid}`); // Navigate to the desired route
+    } else {
+      setMessage("Invalid OTP. Please try again.");
+    }
+  };
+
+  const verifyOtp = async (otpVerify) => {
+    // Replace this with your actual OTP verification logic
+    // For example, send the OTP to your backend API for verification
+    return otpVerify === otp; // Dummy OTP verification
+  };
+
+  return (
+    <div className="bg-blue-400 min-h-screen w-full">
+      <div className="container mx-auto p-6 flex flex-col justify-center items-center min-h-screen">
+        <h1 className="text-white font-bold text-2xl mb-8">SCAN USER</h1>
+
+        <div className="w-full max-w-md aspect-square rounded-xl overflow-hidden relative mb-8 shadow-lg bg-blue-700 p-4">
+          {scanning ? (
+            <div className="w-full h-full rounded-lg overflow-hidden">
+              <video
+                ref={videoRef}
+                className="w-full h-full rounded-lg object-cover"
+              ></video>
+              <canvas ref={canvasRef} className="hidden"></canvas>
+
+              {/* Scanning overlay with frame */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-64 h-64 border-2 border-white/80 rounded-lg flex items-center justify-center">
+                  <div className="w-56 h-56 border border-blue-300/70 rounded-md relative">
+                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-blue-300 rounded-tl-sm"></div>
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-300 rounded-tr-sm"></div>
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-blue-300 rounded-bl-sm"></div>
+                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-300 rounded-br-sm"></div>
                   </div>
                 </div>
-                
-                <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm bg-black/50 py-1.5 mx-4 rounded-md">
-                  Position patient QR code within frame
-                </div>
-              </>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-blue-50">
-                <div className="bg-blue-100 p-4 rounded-full mb-4">
-                  <Scan size={64} className="text-blue-700" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-blue-800">Ready to Scan</h3>
-                <p className="text-blue-600 text-center mb-2">
-                  Access patient records instantly with QR scan
-                </p>
-                <p className="text-xs text-blue-500 text-center">
-                  Please ensure patient consent before scanning
-                </p>
               </div>
-            )}
-          </div>
-
-          {message && (
-            <div
-              className={`text-center py-3 px-4 rounded-lg mb-4 w-full shadow-sm flex items-center justify-center ${
-                message.includes("denied") || message.includes("Invalid") 
-                  ? "bg-red-100 text-red-700 border border-red-200" 
-                  : "bg-green-100 text-green-700 border border-green-200"
-              }`}
-            >
-              <AlertCircle size={16} className={message.includes("denied") || message.includes("Invalid") ? "text-red-500 mr-2" : "text-green-500 mr-2"} />
-              {message}
+            </div>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-blue-800 rounded-lg">
+              <div className="bg-blue-700 p-4 rounded-full mb-4">
+                <Scan size={64} className="text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-white">QR Scanner</h3>
+              <p className="text-blue-100 text-center mb-6">
+                Scan a patient's QR code to quickly access their medical information
+              </p>
             </div>
           )}
+        </div>
 
+        {!showOtpField ? (
           <button
             onClick={() => {
               setScanning(!scanning);
               setMessage("");
               setHid(null);
             }}
-            className="w-full bg-blue-600 text-white py-3.5 px-6 rounded-lg hover:bg-blue-800 transition duration-300 ease-in-out font-medium flex items-center justify-center shadow-md"
+            className="bg-blue-500 text-white py-3 px-8 rounded-md hover:bg-blue-800 transition duration-300 ease-in-out mb-4 font-medium flex items-center justify-center shadow-md"
           >
-            <Scan size={20} className="mr-2" />
-            {scanning ? "Stop Scanning" : "Start Patient Scan"}
+            <Scan size={18} className="mr-2" />
+            {scanning ? "Stop Scanning" : "Start Scanning"}
           </button>
+        ) : (
+          <div className="w-full max-w-md bg-blue-500 p-6 rounded-lg shadow-lg">
+            <h3 className="text-white font-medium mb-4 text-center">Enter the OTP sent to patient</h3>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-full p-3 border border-blue-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
+            />
+            <button
+              onClick={handleOtpSubmit}
+              className="bg-blue-800 text-white py-3 px-6 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out w-full font-medium flex items-center justify-center shadow-md"
+            >
+              <Check size={18} className="mr-2" />
+              Verify OTP
+            </button>
+          </div>
+        )}
 
-          {hid && (
-            <div className="mt-6 text-center p-4 bg-blue-50 border border-blue-200 rounded-lg w-full shadow-sm">
-              <h2 className="text-lg font-semibold text-blue-700">Patient ID</h2>
-              <p className="mt-2 text-blue-800 font-mono bg-white p-2.5 rounded border border-blue-100">{hid}</p>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Bottom info */}
-      <div className="mt-6 text-blue-100 text-xs text-center">
-        <p>For technical assistance, contact IT support</p>
+        {message && (
+          <div
+            className={`text-center py-2 px-4 rounded-md mt-4 w-full max-w-md shadow-sm ${
+              message.includes("denied") || message.includes("Invalid")
+                ? "bg-red-500"
+                : "bg-emerald-500"
+            } text-white`}
+          >
+            {message}
+          </div>
+        )}
+
+        {hid && !showOtpField && (
+          <div className="mt-6 text-center p-4 bg-blue-500 border border-blue-500 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold text-white">Scanned HID</h2>
+            <p className="mt-2 text-white font-mono bg-blue-300 p-2 rounded border border-blue-600">{hid}</p>
+          </div>
+        )}
       </div>
     </div>
   );
