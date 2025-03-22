@@ -289,7 +289,7 @@ const getData = async () => {
       },
       body: JSON.stringify({
         year: 2025,
-        week: 23
+        week: 3
       }),
     });
 

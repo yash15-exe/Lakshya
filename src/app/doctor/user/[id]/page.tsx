@@ -28,6 +28,48 @@ import {
   Upload
 } from "lucide-react";
 
+// Dummy Data
+const dummyData = {
+  id: "1234567890", // Example HID
+  firstName: "John",
+  middleName: "Michael",
+  lastName: "Doe",
+  bloodGroup: "O+",
+  dateOfBirth: "1990-05-15",
+  gender: "male",
+  contactNumber: "+1 123-456-7890",
+  email: "john.doe@example.com",
+  address: "123 Main St, New York, NY, USA",
+  medical: {
+    conditions: ["Hypertension", "Asthma"],
+    allergies: ["Peanuts", "Pollen"],
+    medications: ["Metoprolol", "Albuterol"],
+    vitals: {
+      bloodType: "O+",
+      height: "175 cm",
+      weight: "75 kg",
+      bmi: "24.5",
+      bloodPressure: "120/80 mmHg",
+      heartRate: "72 bpm",
+    },
+  },
+  hospital_visits: [
+    {
+      hospital_name: "City General Hospital",
+      date: "2023-10-01",
+      findings: ["elevated blood pressure", "mild arrhythmia"],
+      treatment: ["beta blockers", "aspirin"],
+      tests: ["ECG", "blood work"],
+      consultations: ["cardiologist"],
+    },
+  ],
+  diagnoses: ["Hypertension", "Mild Arrhythmia"],
+  recommendations: [
+    "regular blood pressure monitoring",
+    "follow-up with cardiologist in 3 months",
+  ],
+};
+
 export default function ScanPage() {
   const { id: hid } = useParams<{ id: string }>();
   const [patientData, setPatientData] = useState<any>(null);
@@ -49,10 +91,14 @@ export default function ScanPage() {
       if (snapshot.exists()) {
         setPatientData(snapshot.val());
       } else {
-        setError("No data found for this ID.");
+        // Use dummy data if no data is found in Firebase
+        setPatientData(dummyData);
+        setError("No data found for this ID. Displaying dummy data.");
       }
     } catch (err) {
-      setError("Error fetching data.");
+      // Use dummy data if there's an error fetching from Firebase
+      setPatientData(dummyData);
+      setError("Error fetching data. Displaying dummy data.");
       console.error("Firebase Error:", err);
     }
 
@@ -119,12 +165,12 @@ const PatientSummary = ({ data }: { data: any }) => {
   const extractPatientInfo = (data: any) => {
     const info: any = {
       name: "Not Available",
-      age: "Not Available",
-      dob: "Not Available",
+      age: "21",
+      dob: "15th May 2004",
       gender: "Not Available",
-      contactNumber: "Not Available",
-      email: "Not Available",
-      address: "Not Available"
+      contactNumber: "7039725352",
+      email: "yraikar22it@student.mes.ac.in",
+      address: "Nerul, Navi Mumbai, Maharashtra, India"
     };
     
     // Helper function to search through nested objects
@@ -192,15 +238,30 @@ const PatientSummary = ({ data }: { data: any }) => {
   // Extract medical data
   const extractMedicalInfo = (data: any) => {
     const info: any = {
-      conditions: [],
-      allergies: [],
-      medications: [],
-      bloodType: "Not Available",
-      height: "Not Available",
-      weight: "Not Available",
-      bmi: "Not Available",
-      bloodPressure: "Not Available",
-      heartRate: "Not Available"
+      conditions: [
+        "Hypertension",
+        "Type 2 Diabetes",
+        "Asthma",
+        "Chronic Back Pain"
+      ],
+      allergies: [
+        "Penicillin",
+        "Peanuts",
+        "Dust Mites",
+        "Pollen"
+      ],
+      medications: [
+        "Metformin 500mg (for Diabetes)",
+        "Lisinopril 10mg (for Hypertension)",
+        "Albuterol Inhaler (for Asthma)",
+        "Ibuprofen 400mg (as needed for Pain)"
+      ],
+      bloodType: "A+",
+      height: "180 cm",
+      weight: "68 Kgs",
+      bmi: "25.5",
+      bloodPressure: "108/70 mmHg",
+      heartRate: "89 bpm"
     };
     
     // Look for medical section

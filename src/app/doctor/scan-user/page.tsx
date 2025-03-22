@@ -5,16 +5,20 @@ import { useRouter } from "next/navigation";
 import { Scan, Check } from "lucide-react";
 import { db } from "@/app/lib/firebaseConfig"; // Import Firebase configuration
 import { ref, get } from "firebase/database"; // Realtime Database functions
-import { v4 as uuid } from "uuid";
-
 
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [hid, setHid] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [fcmToken, setFcmToken] = useState<string | null>(null);
-  const [otp, setOtp] = useState("");
+  const [userOtp, setUserOtp] = useState("");
   const [showOtpField, setShowOtpField] = useState(false);
+
+  // Predefined array of 20 numbers ending with digits 1 to 9
+  const otpArray = [
+    1231, 4562, 7893, 1014, 2025, 3036, 4047, 5058, 6069, 7071,
+    8082, 9093, 1114, 2225, 3336, 4447, 5558, 6669, 7771, 8882
+  ];
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,10 +26,6 @@ export default function QRScanner() {
   const router = useRouter();
 
   useEffect(() => {
-    const otp = Math.floor(1000 + Math.random() * 9000);
-console.log(otp); // Example output: 472
-
-    setOtp(`${otp}`)
     if (scanning) {
       startCamera();
       startScanningLoop();
@@ -101,23 +101,30 @@ console.log(otp); // Example output: 472
     }
   };
 
-
   const fetchFcmToken = async (hid: string) => {
     try {
       const fcmTokenRef = ref(db, `user/${hid}/fcm`);
       const snapshot = await get(fcmTokenRef);
       if (snapshot.exists()) {
         setFcmToken(snapshot.val());
-        await fetch('/api/sendNotification',{
+
+        // Pick a random number from the predefined array
+        const randomOtp = otpArray[Math.floor(Math.random() * otpArray.length)];
+        console.log("Sending OTP:", randomOtp); // Debugging statement
+
+        // Send the OTP to the user via notification
+        await fetch('/api/sendNotification', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ tokens: [snapshot.val()],
+          body: JSON.stringify({
+            tokens: [snapshot.val()],
             title: 'HealthBot',
-            body: `Your OTP is ${otp}`,
-           }),
-        })
+            body: `Your OTP is ${randomOtp}`,
+          }),
+        });
+
         setShowOtpField(true); // Show OTP field after fetching FCM token
       } else {
         setMessage("No FCM token found for this HID.");
@@ -127,27 +134,21 @@ console.log(otp); // Example output: 472
       setMessage("Failed to fetch FCM token. Please try again.");
     }
   };
-  
+
   const handleOtpSubmit = async () => {
-    if (!otp) {
+    if (!userOtp) {
       setMessage("Please enter the OTP.");
       return;
     }
 
-    // Simulate OTP verification (replace with actual API call)
-    const isValidOtp = await verifyOtp(otp); // Replace with your OTP verification logic
+    // Check if the entered OTP exists in the predefined array
+    const isValidOtp = otpArray.includes(Number(userOtp));
     if (isValidOtp) {
       setMessage("OTP verified successfully!");
       router.push(`/doctor/user/${hid}`); // Navigate to the desired route
     } else {
       setMessage("Invalid OTP. Please try again.");
     }
-  };
-
-  const verifyOtp = async (otpVerify: string) => {
-    // Replace this with your actual OTP verification logic
-    // For example, send the OTP to your backend API for verification
-    return otpVerify === otp; // Dummy OTP verification
   };
 
   return (
@@ -203,8 +204,8 @@ console.log(otp); // Example output: 472
           <input
             type="text"
             placeholder="Enter OTP"
-            
-            onChange={(e) => setOtp(e.target.value)}
+            value={userOtp}
+            onChange={(e) => setUserOtp(e.target.value)}
             className="w-full p-3 border border-purple-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           <button

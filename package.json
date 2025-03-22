@@ -27,6 +27,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
+    "react-pdf": "^9.2.1",
     "react-qr-barcode-scanner": "^2.0.0",
     "react-qr-reader": "^3.0.0-beta-1",
     "react-toastify": "^11.0.5",
