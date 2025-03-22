@@ -65,7 +65,7 @@ export default function OutbreakMap({ outbreaks }: OutbreakMapProps) {
           <Circle
             key={index}
             center={outbreak.center}
-            radius={outbreak.radius}
+            radius={outbreak.radius*100}
             pathOptions={{ color: "red", fillColor: "red", fillOpacity: 0.2 }}
           >
             <Popup>

@@ -22,30 +22,34 @@ export default function Home() {
   const [selectedDisease, setSelectedDisease] = useState("All");
   const router = useRouter();
 
-  const groupOutbreaksByDisease = (outbreaks:any) => {
+  // Extract unique disease names from the outbreaks dataset
+  const uniqueDiseases = Array.from(
+    new Set(outbreaks.map((outbreak) => outbreak.name))
+  );
+
+  const groupOutbreaksByDisease = (outbreaks: any) => {
     const groupedOutbreaks = new Map();
 
-    outbreaks.forEach((outbreak:any) => {
+    outbreaks.forEach((outbreak: any) => {
       if (!groupedOutbreaks.has(outbreak.name)) {
         groupedOutbreaks.set(outbreak.name, []);
       }
       groupedOutbreaks.get(outbreak.name).push(outbreak);
     });
-    console.log(groupedOutbreaks);
 
     return groupedOutbreaks;
   };
 
   const groupedOutbreaks = groupOutbreaksByDisease(outbreaks);
-  const uniqueDiseases = Array.from(groupedOutbreaks.keys());
 
-  const handleDiseaseChange = (e:any) => {
+  const handleDiseaseChange = (e: any) => {
     setSelectedDisease(e.target.value);
   };
 
-  const filteredOutbreaks = selectedDisease === "All" 
-    ? outbreaks 
-    : groupedOutbreaks.get(selectedDisease) || [];
+  const filteredOutbreaks =
+    selectedDisease === "All"
+      ? outbreaks
+      : groupedOutbreaks.get(selectedDisease) || [];
 
   useEffect(() => {
     const fetchUserReports = async () => {
@@ -101,9 +105,13 @@ export default function Home() {
       Pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
       default: "bg-gray-100 text-gray-800 border-gray-300",
     };
-    
+
     return (
-      <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${statusClasses[status] || statusClasses.default}`}>
+      <span
+        className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${
+          statusClasses[status] || statusClasses.default
+        }`}
+      >
         {status || "New"}
       </span>
     );
@@ -136,16 +144,19 @@ export default function Home() {
                     <OutbreakMap outbreaks={filteredOutbreaks} />
                   </div>
                 </div>
-                
+
                 {/* Filter Sidebar */}
                 <div className="lg:w-1/3 bg-white rounded-lg overflow-hidden border border-gray-200 p-4">
                   <h3 className="text-lg font-medium text-gray-800 mb-4">
                     Filter Outbreaks
                   </h3>
-                  
+
                   {/* Disease Filter */}
                   <div className="mb-6">
-                    <label htmlFor="diseaseFilter" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="diseaseFilter"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Select Disease
                     </label>
                     <select
@@ -155,17 +166,20 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="All">All Diseases</option>
-                      <option value="Dengue Outbreak">Dengue</option>
-                      <option value="Cholera Outbreak">Cholera</option>
-                      <option value="Typhoid Outbreak">Typhoid</option>
-                      <option value="Hepatitis A Outbreak">Hepatitis A</option>
-                      <option value="Malaria Outbreak">Malaria</option>
+                      {uniqueDiseases.map((disease) => (
+                        <option key={disease} value={disease}>
+                          {disease}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                  
+
                   {/* Calendar Filter */}
                   <div>
-                    <label htmlFor="dateFilter" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="dateFilter"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Filter by Date
                     </label>
                     <input
@@ -179,7 +193,7 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  
+
                   {/* Disease Statistics */}
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <h4 className="text-md font-medium text-gray-800 mb-3">
@@ -187,16 +201,31 @@ export default function Home() {
                     </h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total Cases:</span>
-                        <span className="font-medium">{filteredOutbreaks.reduce((sum, outbreak) => sum + outbreak.cases, 0)}</span>
+                        <span className="text-sm text-gray-600">
+                          Total Cases:
+                        </span>
+                        <span className="font-medium">
+                          {filteredOutbreaks.reduce(
+                            (sum, outbreak) => sum + outbreak.cases,
+                            0
+                          )}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Affected Areas:</span>
-                        <span className="font-medium">{filteredOutbreaks.length}</span>
+                        <span className="text-sm text-gray-600">
+                          Affected Areas:
+                        </span>
+                        <span className="font-medium">
+                          {filteredOutbreaks.length}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Last Updated:</span>
-                        <span className="text-sm text-gray-500">{new Date().toLocaleDateString()}</span>
+                        <span className="text-sm text-gray-600">
+                          Last Updated:
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date().toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -236,7 +265,9 @@ export default function Home() {
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No reports</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">
+                      No reports
+                    </h3>
                     <p className="mt-1 text-sm text-gray-500">
                       No community health reports have been submitted yet.
                     </p>
@@ -267,7 +298,8 @@ export default function Home() {
                                 {report.location}
                               </h3>
                               <p className="text-sm text-gray-500">
-                                Reported on {new Date(report.timestamp).toLocaleString()}
+                                Reported on{" "}
+                                {new Date(report.timestamp).toLocaleString()}
                               </p>
                             </div>
                             {getStatusBadge(report.status)}
@@ -318,7 +350,7 @@ export default function Home() {
                               Resolve
                             </button>
                             <button
-                              onClick={() => 
+                              onClick={() =>
                                 updateReportStatus({
                                   reportId: report.id,
                                   newStatus: "Pending",

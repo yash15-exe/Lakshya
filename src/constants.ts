@@ -100,65 +100,233 @@ export const aqiData = [
     },
   },
 ];
-export const outbreaks = [
-  {
-    center: [19.072, 72.8772], // Mumbai - CST
-    radius: 1200, // Radius in meters
-    name: "Dengue Outbreak",
-    cases: 200,
-  },
-  {
-    center: [19.102, 72.8290], // Mumbai - Andheri
-    radius: 900, // Radius in meters
-    name: "Cholera Outbreak",
-    cases: 150,
-  },
-  {
-    center: [19.221, 72.8610], // Mumbai - Borivali
-    radius: 1000, // Radius in meters
-    name: "Typhoid Outbreak",
-    cases: 180,
-  },
-  {
-    center: [19.018, 72.840], // Mumbai - South
-    radius: 1100, // Radius in meters
-    name: "Hepatitis A Outbreak",
-    cases: 220,
-  },
-  {
-    center: [19.040, 72.860], // Mumbai - Dadar
-    radius: 700, // Radius in meters
-    name: "Malaria Outbreak",
-    cases: 130,
-  },
-  {
-    center: [19.080, 72.888], // Mumbai - Worli
-    radius: 800, // Radius in meters
-    name: "Dengue Outbreak",
-    cases: 190,
-  },
-  {
-    center: [19.115, 72.832], // Mumbai - Juhu
-    radius: 850, // Radius in meters
-    name: "Cholera Outbreak",
-    cases: 160,
-  },
-  {
-    center: [19.230, 72.860], // Mumbai - Dahisar
-    radius: 950, // Radius in meters
-    name: "Typhoid Outbreak",
-    cases: 170,
-  },
-  {
-    center: [19.025, 72.845], // Mumbai - Colaba
-    radius: 1000, // Radius in meters
-    name: "Hepatitis A Outbreak",
-    cases: 210,
-  },
-  {
-    center: [19.045, 72.865], // Mumbai - Mahim
-    radius: 750, // Radius in meters
-    name: "Malaria Outbreak",
-    cases: 140,
+
+  export const outbreaks = [
+    {
+      center: [26.6769864, 92.6983868],
+      radius: 85,
+      name: "Dysentery Outbreak",
+      cases: 17
+    },
+    {
+      center: [25.2132649, 84.9853322],
+      radius: 40,
+      name: "Fever with Rash Outbreak",
+      cases: 8
+    },
+    {
+      center: [26.6098139, 84.8567932],
+      radius: 70,
+      name: "Fever with Rash Outbreak",
+      cases: 14
+    },
+    {
+      center: [34.5261786, 74.2546136],
+      radius: 40,
+      name: "Acute Diarrheal Disease Outbreak",
+      cases: 8
+    },
+    {
+      center: [32.9159847, 75.1416173],
+      radius: 40,
+      name: "Hepatitis E Outbreak",
+      cases: 8
+    },
+    {
+      center: [14.4644085, 75.921758],
+      radius: 145,
+      name: "Food Poisoning Outbreak",
+      cases: 29
+    },
+    {
+      center: [13.0033234, 76.1003894],
+      radius: 5,
+      name: "Leptospirosis Outbreak",
+      cases: 1
+    },
+    {
+      center: [9.9816358, 76.2998842],
+      radius: 60,
+      name: "Hepatitis A Outbreak",
+      cases: 12
+    },
+    {
+      center: [11.8744775, 75.3703662],
+      radius: 430,
+      name: "Food Poisoning Outbreak",
+      cases: 86
+    },
+    {
+      center: [11.8744775, 75.3703662],
+      radius: 5,
+      name: "Mpox Outbreak",
+      cases: 1
+    },
+    {
+      center: [9.5915668, 76.5221531],
+      radius: 125,
+      name: "Food Poisoning Outbreak",
+      cases: 25
+    },
+    {
+      center: [11.0509762, 76.0710967],
+      radius: 150,
+      name: "Food Poisoning Outbreak",
+      cases: 30
+    },
+    {
+      center: [10.5276416, 76.2144349],
+      radius: 5,
+      name: "Mpox Outbreak",
+      cases: 1
+    },
+    {
+      center: [20.9319821, 77.7523039],
+      radius: 665,
+      name: "Food Poisoning Outbreak",
+      cases: 133
+    },
+    {
+      center: [20.5292147, 76.1841701],
+      radius: 60,
+      name: "Acute Diarrheal Disease Outbreak",
+      cases: 12
+    },
+    {
+      center: [25.8270321, 90.658333],
+      radius: 55,
+      name: "Chickenpox Outbreak",
+      cases: 11
+    },
+    {
+      center: [20.6504753, 85.5981223],
+      radius: 160,
+      name: "Acute Diarrheal Disease Outbreak",
+      cases: 32
+    },
+    {
+      center: [18.813487, 82.7123327],
+      radius: 110,
+      name: "Food Poisoning Outbreak",
+      cases: 22
+    },
+    {
+      center: [11.7383735, 78.9638899],
+      radius: 45,
+      name: "Acute Diarrheal Disease Outbreak",
+      cases: 9
+    },
+    {
+      center: [27.5035427, 82.036461],
+      radius: 30,
+      name: "Chickenpox Outbreak",
+      cases: 6
+    },
+    {
+      center: [22.710047, 88.7108964],
+      radius: 155,
+      name: "Food Poisoning Outbreak",
+      cases: 31
+    },
+    {
+      center: [26.3452397, 89.4482079],
+      radius: 55,
+      name: "Food Poisoning Outbreak",
+      cases: 11
+    },
+    {
+      center: [25.242453, 86.9842256],
+      radius: 40,
+      name: "Paratyphoid Outbreak",
+      cases: 8
+    },
+    {
+      center: [9.9816358, 76.2998842],
+      radius: 110,
+      name: "Mumps Outbreak",
+      cases: 22
+    },
+    {
+      center: [9.2647582, 76.7870414],
+      radius: 5,
+      name: "Mpox Outbreak",
+      cases: 1
+    },
+    {
+      center: [10.5276416, 76.2144349],
+      radius: 105,
+      name: "Chickenpox Outbreak",
+      cases: 21
+    },
+    {
+      center: [23.2599333, 77.412615],
+      radius: 95,
+      name: "Chickenpox Outbreak",
+      cases: 19
+    },
+    {
+      center: [25.2138156, 75.8647527],
+      radius: 75,
+      name: "Hepatitis A Outbreak",
+      cases: 15
+    },
+    {
+      center: [29.4501986, 77.3172046],
+      radius: 5,
+      name: "Human Rabies Outbreak",
+      cases: 1
+    }
+  ]
+
+
+
+const getData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/get-outbreaks/', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        year: 2025,
+        week: 23
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const rawData = await response.json();
+    
+    // Parse data if it's returned as a stringified JSON
+    const outbreaks = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
+
+    // Extracting relevant information
+    if (!outbreaks || !Array.isArray(outbreaks.outbreaks)) {
+      throw new Error("Invalid outbreak data format.");
+    }
+
+    console.log("Total Outbreaks:", outbreaks.outbreaks.length);
+
+    outbreaks.outbreaks.forEach(({outbreak, index}:{outbreak:any, index:any}) => {
+      console.log(`${index + 1}. ${outbreak.name} - Cases: ${outbreak.cases}, Location: ${outbreak.center}`);
+    });
+
+    return outbreaks;
+
+  } catch (error:any) {
+    console.error("Error fetching outbreak data:", error.message);
+    return null;
   }
-];
+};
+
+// Example usage
+getData().then(data => {
+  if (data) {
+    console.log("Outbreak data fetched successfully!");
+  }
+});
+
+
+export const outbreak1 = getData();
