@@ -165,14 +165,7 @@ export default function FileUpload({ hid }) {
       </form>
 
       {/* Display Server Response */}
-      {serverResponse && (
-        <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-          <h3 className="font-bold text-lg mb-2">Summary:</h3>
-          <pre className="whitespace-pre-wrap text-sm">
-            {JSON.stringify(JSON.parse(serverResponse), null, 2)}
-          </pre>
-        </div>
-      )}
+      
 
       {/* Upload Success Message */}
       {uploadSuccess && (
